@@ -1,0 +1,143 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+
+    <link rel="stylesheet" type="text/css" href="https://code.highcharts.com/css/stocktools/gui.css">
+    <link rel="stylesheet" type="text/css" href="https://code.highcharts.com/css/annotations/popup.css">
+
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+    <script src="https://code.highcharts.com/stock/highstock.js"></script>
+
+    <script src="https://code.highcharts.com.cn/highcharts/modules/exporting.js"></script>
+    <script src="https://code.highcharts.com.cn/highcharts-plugins/highcharts-zh_CN.js"></script>
+
+    <script src="https://code.highcharts.com/stock/indicators/indicators-all.js"></script>
+    <script src="https://code.highcharts.com/stock/modules/drag-panes.js"></script>
+    <script src="https://code.highcharts.com/modules/annotations-advanced.js"></script>
+    <script src="https://code.highcharts.com/modules/price-indicator.js"></script>
+    <script src="https://code.highcharts.com/modules/full-screen.js"></script>
+    <script src="https://code.highcharts.com/modules/stock-tools.js"></script>
+
+    <style>
+        /* css 代码  */
+    </style>
+</head>
+
+<body>
+<div id="container" style="width:960px;height:480px"></div>
+</body>
+
+</html>
+
+<script>
+    Highcharts.setOptions({
+        lang: {
+            rangeSelectorZoom: ''
+        }
+    });
+
+    var ohlc = {{ ohlc_data }};
+
+    var volume = {{ volume_data }};
+
+    var groupingUnits = [[
+        'week',                         // unit name
+        [1]                             // allowed multiples
+    ], [
+        'month',
+        [1, 2, 3, 4, 6]
+    ]];
+
+    // create the chart
+    var chart = Highcharts.stockChart('container', {
+        rangeSelector: {
+            selected: 1,
+            inputDateFormat: '%Y-%m-%d'
+        },
+        title: {
+            text: '{{ stock_name }} 历史股价 ({{ adj_type }})'
+        },
+        xAxis: {
+            dateTimeLabelFormats: {
+                millisecond: '%H:%M:%S.%L',
+                second: '%H:%M:%S',
+                minute: '%H:%M',
+                hour: '%H:%M',
+                day: '%m-%d',
+                week: '%m-%d',
+                month: '%Y-%m',
+                year: '%Y'
+            }
+        },
+        tooltip: {
+            split: false,
+            shared: true,
+            dateTimeLabelFormats: {
+                hour: '%Y-%m-%d %a',
+                day: '%Y-%m-%d %a',
+                week: '%Y-%m-%d %a',
+                month: '%Y-%m-%d %a',
+                year: '%Y-%m-%d %a'
+            }
+        },
+        yAxis: [{
+            labels: {
+                align: 'right',
+                x: -3
+            },
+            title: {
+                text: '股价'
+            },
+            height: '65%',
+            resize: {
+                enabled: true
+            },
+            lineWidth: 2
+        }, {
+            labels: {
+                align: 'right',
+                x: -3
+            },
+            title: {
+                text: '成交量'
+            },
+            top: '65%',
+            height: '35%',
+            offset: 0,
+            lineWidth: 2
+        }],
+        series: [{
+            type: 'candlestick',
+            name: '{{ stock_name }}',
+            color: 'green',
+            lineColor: 'green',
+            upColor: 'red',
+            upLineColor: 'red',
+            tooltip: {
+                valueSuffix: ' 元'
+            },
+            navigatorOptions: {
+                color: Highcharts.getOptions().colors[0]
+            },
+            data: ohlc,
+            dataGrouping: {
+                units: groupingUnits
+            },
+            id: 'sz'
+        }, {
+            type: 'column',
+            name: '成交量',
+            data: volume,
+            yAxis: 1,
+            tooltip: {
+                valueSuffix: ' 手'
+            },
+            dataGrouping: {
+                units: groupingUnits
+            }
+        }]
+    });
+</script>
