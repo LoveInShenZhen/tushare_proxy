@@ -5,7 +5,8 @@ from typing import Dict
 import pandas as pd
 
 import sz
-from sz.dataframe_tools import load_tushare_data
+from sz.toolbox.dataframe_tools import load_tushare_data
+from sz.toolbox.lazy import lazy_fun
 from sz.tushare import data_dir
 
 
@@ -30,3 +31,9 @@ def stock_map() -> Dict[str, str]:
 
 def name_of(ts_code: str) -> str:
     return stock_map()[ts_code]
+
+
+@lazy_fun
+def test_cache() -> str:
+    sz.log_c_debug('test_cache is called')
+    return "sssssssssssss is cached"

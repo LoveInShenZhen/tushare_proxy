@@ -4,9 +4,11 @@ from sz.api.tushare.stocks import tushare
 import os
 from sz.config import config
 from sz import application
+import colorama
 
 
 def create_app():
+    colorama.init(autoreset = True)
     application.app = Flask(__name__)
 
     # todo: register blueprint
@@ -24,3 +26,7 @@ def setup_app_home(home_path: str):
 
 def log_debug(msg, *args, **kwargs):
     application.app.logger.debug(msg, *args, **kwargs)
+
+
+def log_c_debug(msg, *args, **kwargs):
+    application.app.logger.debug('%s%s' % (colorama.Fore.BLUE, msg), *args, **kwargs)

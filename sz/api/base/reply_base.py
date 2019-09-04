@@ -1,6 +1,5 @@
-from typing import *
-from flask import Flask, Response
 import jsonpickle
+from flask import Response
 
 
 class ReplyBase(object):
