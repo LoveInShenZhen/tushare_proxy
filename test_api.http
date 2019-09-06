@@ -19,4 +19,12 @@ GET http://{{host}}/tmp/api_doc
     &tag=接口说明
 
 ###
+GET http://{{host}}/tmp/api_doc
+    ?api_path=/模拟测试产生异常
+    &tag=error
 
+###
+GET http://{{host}}/tmp/say_hello
+    ?user=古天乐
+
+###

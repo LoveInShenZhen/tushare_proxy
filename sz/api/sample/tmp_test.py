@@ -1,91 +1,147 @@
+
+import inspect
 import os
+from datetime import datetime
 
 import flask
 from flask import Blueprint, Request
 
 import sz
 from sz import application
-from sz.api.base.api_doc import json_api
-from sz.api.base.reply_base import ReplyBase, json_response
+from sz.api.base.api_doc import json_api, all_json_api
+from sz.api.base.errors import ApiError
+from sz.api.base.reply_base import ReplyBase
 from sz.config import config
-from sz.tushare.basic import test_cache
 
-tmp_test = Blueprint('tmp_test', __name__)
+tmptest = Blueprint('tmp_test', __name__)
 request: Request = flask.request
 
 
-@tmp_test.route('/test')
-def test():
+@tmptest.route('/test')
+@json_api
+def test() -> ReplyBase:
     reply = ReplyBase()
     reply.greetings = '老板好! 恭喜老板发财! 夜夜嫩模! 一夜七次! 一次一小时!'
     sz.log_debug('\n%s', reply.json_str())
-    return json_response(reply)
+    return reply
 
 
-@tmp_test.route('/reply_test')
-def reply_test():
+@tmptest.route('/reply_test')
+@json_api
+def reply_test() -> ReplyBase:
     reply = ReplyBase()
     reply.greetings = '你好! 恭喜老板发财! 夜夜嫩模!'
-    return json_response(reply)
+    return reply
 
 
-@tmp_test.route('/current_path')
-def current_path():
+@tmptest.route('/current_path')
+@json_api
+def current_path() -> ReplyBase:
     reply = ReplyBase()
     reply.current_path = os.path.abspath('.')
-    return json_response(reply)
+    return reply
 
 
-@tmp_test.route('/app_home')
-def app_home():
+@tmptest.route('/app_home')
+@json_api
+def app_home() -> ReplyBase:
     reply = ReplyBase()
     reply.app_home = application.APP_HOME
-    return json_response(reply)
+    return reply
 
 
-@tmp_test.route('/config_path')
-def config_path():
+@tmptest.route('/config_path')
+@json_api
+def config_path() -> ReplyBase:
     reply = ReplyBase()
     reply.config_path = os.path.join(application.APP_HOME, 'conf', 'application.conf')
-    return json_response(reply)
+    return reply
 
 
-@tmp_test.route('/read_config')
-def read_config():
+@tmptest.route('/read_config')
+@json_api
+def read_config() -> ReplyBase:
     cfg_key = request.args['config']
     reply = ReplyBase()
     reply.config_path = config
     reply.config_value = config().get_string(cfg_key, "undefined")
-    return json_response(reply)
+    return reply
 
 
-@tmp_test.route('/url_map')
-def url_map():
+@tmptest.route('/url_map', methods = ['GET', 'POST'])
+@json_api
+def url_map() -> ReplyBase:
     """
-    url_map 的文档
+    列出所有的 json api 信息
     :return:
     """
     reply = ReplyBase()
-    reply.url_map = str(application.app.url_map)
-    sz.log_debug(type(application.app.url_map))
+    # reply.url_map = ['%s : %s : %s : %s' % (
+    #     rule.rule,
+    #     rule.endpoint,
+    #     func_name_by_endpoint(rule.endpoint),
+    #     comments_by_endpoint(rule.endpoint)) for rule in
+    #                  application.app.url_map.iter_rules()]
+    # sz.log_c_debug('url_map type: %s', type(application.app.url_map))
+    # sz.log_debug(type(application.app.url_map))
     # for rule in application.app.url_map.iter_rules():
     #     sz.log_debug('rule: %s, endpoin: %s, endpoint_type: %s' % (rule, rule.endpoint, type(rule.endpoint)))
-    rules = list(application.app.url_map.iter_rules())
-    sz.log_c_debug('rule type: %s' % type(rules[0]))
-    rule = rules[0]
-    sz.log_c_debug('rule path: %s, methods: %s, endpoint: %s' % (rule.rule, rule.methods, rule.endpoint))
+    # rules = list(application.app.url_map.iter_rules())
+    # sz.log_c_debug('rule type: %s' % type(rules[0]))
+    # rule = rules[0]
+    # sz.log_c_debug('rule path: %s, methods: %s, endpoint: %s' % (rule.rule, rule.methods, rule.endpoint))
+
+    # for rule in application.app.url_map.iter_rules(endpoint = 'tmp_test.api_doc'):
+    #     func = application.app.view_functions[rule.endpoint]
+    #     if hasattr(func, '__original__fun__'):
+    #         sz.log_c_debug('found __original__fun__')
+    #         arg_spec = inspect.getfullargspec(func.__original__fun__)
+    #     else:
+    #         arg_spec = inspect.getfullargspec(func)
+    #     sz.log_c_debug('endpoint:%s, rule: %s, func: %s -- %s',
+    #                    rule.endpoint,
+    #                    rule.rule,
+    #                    fullname_of_func(func),
+    #                    str(arg_spec)
+    #                    )
+
+    reply.api_list = all_json_api()
 
     # for (k, v) in application.app.view_functions.items():
     #     print('%s : %s, name: %s' % (k, type(v), v.__name__))
 
-    return json_response(reply)
+    # modname = 'sz.api.sample.tmp_test'
+    # modname = 'flask.helpers'
+    # fun_module = importlib.import_module(modname)
+    # # sz.log_c_debug('mod type: %s', type(fun_module))
+    # # sz.log_c_debug('dir mod: %s', dir(fun_module))
+    # sz.log_c_debug('is module: %s', inspect.ismodule(fun_module))
+    # sz.log_c_debug('members:')
+    # for m in inspect.getmembers(fun_module):
+    #     sz.log_c_debug('%s', m)
+    return reply
 
 
-@tmp_test.route('/api_doc')
+def func_name_by_endpoint(endpoint: str) -> str:
+    func = application.app.view_functions[endpoint]
+    return '%s.%s' % (func.__module__, func.__qualname__)
+
+
+def fullname_of_func(func) -> str:
+    return '%s.%s' % (func.__module__, func.__qualname__)
+
+
+def comments_by_endpoint(endpoint: str) -> str:
+    x = application.app.view_functions[endpoint]
+    return inspect.getcomments(x)
+
+
+@tmptest.route('/api_doc')
 @json_api
-def api_doc(api_path: str = 'undefined', tag: str = '') -> ReplyBase:
+def api_doc(api_path: str = '/api/tmp/api_doc', tag: str = 'doc', age: int = 16) -> ReplyBase:
     """
     api_doc 接口文档
+    :param age:
     :param tag:
     :param api_path:
     :return:
@@ -93,4 +149,20 @@ def api_doc(api_path: str = 'undefined', tag: str = '') -> ReplyBase:
     reply = ReplyBase()
     reply.api_path = api_path
     reply.tag = tag
+    reply.app_debug = application.app.debug
+    reply.age = age
+    sz.log_c_debug('instance method: %s' % ReplyBase.json_str.__qualname__)
+    if tag == 'error':
+        raise ApiError('模拟异常发生')
     return reply
+
+
+@tmptest.route('/say_hello')
+@json_api
+def say_hello(user: str) -> str:
+    """
+    对访问用户打招呼,说 hello, 告诉今天日期
+    :param user: 用户名称
+    :return: 问候语
+    """
+    return 'Hello %s, today is %s' % (user, datetime.now().strftime('%Y-%m-%d %A'))

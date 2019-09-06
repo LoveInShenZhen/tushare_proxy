@@ -1,5 +1,5 @@
 from flask import Flask
-from sz.api.sample.tmp_test import tmp_test
+from sz.api.sample.tmp_test import tmptest
 from sz.api.tushare.stocks import tushare
 import os
 from sz.config import config
@@ -12,7 +12,7 @@ def create_app():
     application.app = Flask(__name__)
 
     # todo: register blueprint
-    application.app.register_blueprint(tmp_test, url_prefix = '/tmp')
+    application.app.register_blueprint(tmptest, url_prefix = '/tmp')
     application.app.register_blueprint(tushare, url_prefix = '/tushare')
 
     return application.app

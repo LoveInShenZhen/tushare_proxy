@@ -52,7 +52,7 @@ def stock_df() -> pd.DataFrame:
     freq = request.args.get('freq', default = 'D')
     asset = request.args.get('asset', default = 'E')
     adj = request.args.get('adj', default = None)
-    ma = _drop_blank(request.args.get('ma', default = '').split(','))
+    ma = [int(x) for x in _drop_blank(request.args.get('ma', default = '').split(','))]
     factors = _drop_blank(request.args.get('factors', default = '').split(','))
 
     sz.log_debug('ma: %s', ma)
