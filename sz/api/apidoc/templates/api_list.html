@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>API 接口文档</title>
+
+    <!-- 新 Bootstrap4 核心 CSS 文件 -->
+    <!-- <link rel="stylesheet" href="https://bootswatch.com/4/slate/bootstrap.min.css"> -->
+    <link rel="stylesheet" href="https://bootswatch.com/4/flatly/bootstrap.min.css">
+
+    <!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
+    <script src="https://cdn.staticfile.org/jquery/3.2.1/jquery.min.js"></script>
+
+    <!-- bootstrap.bundle.min.js 用于弹窗、提示、下拉菜单，包含了 popper.min.js -->
+    <script src="https://cdn.staticfile.org/popper.js/1.15.0/umd/popper.min.js"></script>
+
+    <!-- 最新的 Bootstrap4 核心 JavaScript 文件 -->
+    <script src="https://cdn.staticfile.org/twitter-bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+    <style>
+
+    </style>
+
+</head>
+
+<body>
+    <div class="container">
+        <table class="table table-hover" style="word-break:normal; word-wrap:break-word;">
+            <thead>
+                <tr>
+                    <th class="text-info">Url Path</th>
+                    <th class="text-info">Description</th>
+                    <th class="text-info">Test</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for api in api_list %}
+                <tr>
+                    <td>{{api.path}}</td>
+                    {% if api.has_doc %}
+                        <td><a href="#" data-toggle="collapse" data-target="#_doc_{{ loop.index }}">{{api.brief}}</a></td>
+                    {% else %}
+                        <td><span class="text-warning">{{api.brief}}</span></td>
+                    {% endif %}
+
+                    <td>
+                        {% if api.support_get %}
+                        <a href="#" class="btn btn-outline-success btn-sm" role="button">GET</a>
+                        {% endif %}
+                        {% if api.support_post  %}
+                        <a href="#" class="btn btn-outline-success btn-sm" role="button">POST</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                    {% if api.has_doc %}
+                        <tr id="_doc_{{ loop.index }}" class="collapse">
+                            <td colspan=3><pre class="text-info">{{ api.doc }}</pre></td>
+                        </tr>
+                    {% endif %}
+                {% endfor %}
+                <tr>
+                    <td>/tmp/api_list</td>
+                    <td>Json Api 列表</td>
+                    <td>
+                        <a href="#" class="btn btn-outline-success btn-sm" role="button">GET</a>
+                        <a href="#" class="btn btn-outline-success btn-sm" role="button">POST</a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>/tmp/api_list</td>
+                    <td>Json Api 列表</td>
+                    <td>
+
+                        <a href="#" class="btn btn-outline-success btn-sm" role="button">POST</a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>/tmp/api_list</td>
+                    <td>Json Api 列表</td>
+                    <td>
+                        <a href="#" class="btn btn-outline-success btn-sm" role="button">GET</a>
+
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+
+
+</body>
+
+</html>

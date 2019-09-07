@@ -97,7 +97,7 @@ class JsonApiArg:
     # 参数的默认值
     default: str = ''
     # 参数的类型描述
-    type_desc: str = ''
+    type_desc: str = '开发人员很懒,没有标注参数的类型,鄙视他吧👎'
 
 
 @dataclass
@@ -107,7 +107,9 @@ class JsonApiFunc:
     func_qualified_name: str = None
     func_full_name: str = None
     comments: str = ''
-    doc: str = ''
+    doc: str = '开发人员很懒,没有留下文档说明,鄙视他吧👎'
+    has_doc: bool = False
+    brief: str = ''     # first line of doc
     support_get: bool = False
     support_post: bool = False
     args: List[JsonApiArg] = None
@@ -120,7 +122,14 @@ class JsonApiFunc:
         self.func_qualified_name = func.__qualname__
         self.func_full_name = full_name_of_func(func)
         self.comments = inspect.getcomments(func)
-        self.doc = inspect.getdoc(func)
+
+        fun_doc = inspect.getdoc(func)
+        if fun_doc:
+            self.doc = fun_doc
+            self.has_doc = True
+
+        self.brief = self.doc.splitlines()[0]
+
         self.support_get = 'GET' in rule.methods
         self.support_post = 'POST' in rule.methods
         self.args = list()
