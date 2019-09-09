@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>API 接口文档</title>
+
+    <!-- 新 Bootstrap4 核心 CSS 文件 -->
+    <!-- <link rel="stylesheet" href="https://bootswatch.com/4/slate/bootstrap.min.css"> -->
+    <link rel="stylesheet" href="https://bootswatch.com/4/flatly/bootstrap.min.css">
+
+    <link rel="stylesheet" href="http://loveinshenzhen.github.io/prism/prism.css" data-noprefix/>
+
+    <!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
+    <script src="https://cdn.staticfile.org/jquery/3.2.1/jquery.min.js"></script>
+
+    <!-- bootstrap.bundle.min.js 用于弹窗、提示、下拉菜单，包含了 popper.min.js -->
+    <script src="https://cdn.staticfile.org/popper.js/1.15.0/umd/popper.min.js"></script>
+
+    <!-- 最新的 Bootstrap4 核心 JavaScript 文件 -->
+    <script src="https://cdn.staticfile.org/twitter-bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+    <link href="//netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+    <style>
+
+    </style>
+
+</head>
+
+<body>
+<div class="container text-monospace">
+    <div class="mt-3 mb-3">
+        <h4 id='api_path'>{{ api.path }}</h4>
+        <pre class="text-info">{{ api.doc }}</pre>
+    </div>
+    <hr>
+    <div class="control-group mt-3 mb-3">
+        <h4>Query String 参数:</h4>
+        <form id="ajax_form">
+            {% for arg in api.args %}
+                <div class="form-group">
+                    <label for="{{ arg.name }}" class="font-italic font-weight-bold">{{ arg.name }}
+                        <span class="small font-italic">类型: {{ arg.type_desc }}
+                            {% if arg.has_default %}
+                                默认值: {{ arg.default }}
+                            {% endif %}
+                        </span>
+                    </label>
+                    <input type="text" class="form-control" id="{{ arg.name }}" name="{{ arg.name }}"
+                           placeholder="Enter {{ arg.name }}">
+                </div>
+            {% endfor %}
+        </form>
+    </div>
+    <hr>
+    <div class="control-group mt-3 mb-3">
+        <h4>Post 参数:</h4>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="post_type" id="post_json" value="post_json" checked>
+            <label class="form-check-label" for="post_json">
+                Post Json
+            </label>
+        </div>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="post_type" id="post_form" value="post_form">
+            <label class="form-check-label" for="post_form">
+                Post Form
+            </label>
+        </div>
+        <div id="post_json_group" class="control-group mt-3 mb-3">
+            <span>POST JSON, content-type: application/json; charset=utf-8</span>
+            <textarea id="json_data" class="form-control" rows="16" >{&#10;}</textarea>
+        </div>
+        <div id="post_form_group" class="control-group mt-3 mb-3" style="display: none">
+            <span>POST FORM, content-type: application/x-www-form-urlencoded</span>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Parameter Name</th>
+                    <th>Parameter Value</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr id="form_param_row_0">
+                    <td><i class="fa fa-minus-circle fa-2x" onclick="remove_form_param_row('form_param_row_0')"></i>
+                    </td>
+                    <td><input type="text" class="form-control" id="param_name_0"
+                               placeholder="Enter parameter name"></td>
+                    <td><input type="text" class="form-control" id="param_value_0"
+                               placeholder="Enter parameter value"></td>
+                </tr>
+                <tr id="form_param_row_last">
+                    <td><i class="fa fa-plus-circle fa-2x" onclick="new_form_param_row()"></i></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+    <hr>
+    <div class="mt-3 mb-3">
+        <button class="btn btn-primary" onclick="testAPI()">测试</button>
+        <button class="btn btn-primary" onclick="ClearOutput()">Clear Output</button>
+    </div>
+    <hr>
+    <div class="control-group mt-3 mb-3">
+        <h5>返回结果：</h5>
+        <div class="card bg-light text-dark">
+            <pre id="response" class="language-json">
+# 点击 "测试" 按钮, 等待返回结果
+            </pre>
+        </div>
+    </div>
+</div>
+
+</body>
+
+</html>
+
+<script src="http://loveinshenzhen.github.io/prism/prism.js"></script>
+<script type="text/javascript">
+
+    var counter = 0;
+
+    function remove_form_param_row(row_id) {
+        $(`#${row_id}`).remove();
+    }
+
+    function new_form_param_row() {
+        last_row = $('#form_param_row_last');
+        row_id = `form_param_row_${counter}`;
+        row_html = `
+        <tr id="${row_id}">
+            <td><i class="fa fa-minus-circle fa-2x" onclick="remove_form_param_row('${row_id}')"></i></td>
+            <td><input type="text" class="form-control" id="param_name_2"
+                       placeholder="Enter parameter name"></td>
+            <td><input type="text" class="form-control" id="param_value_2"
+                       placeholder="Enter parameter value"></td>
+        </tr>
+        `;
+        last_row.before(row_html);
+        counter++;
+    }
+
+    {#$('input:radio[name="post_type"]:checked').val();#}
+    $('input:radio[name="post_type"]').click(function () {
+        let post_type = $('input:radio[name="post_type"]:checked').val();
+        if (post_type === 'post_json') {
+            $("#post_json_group").show();
+            $("#post_form_group").hide();
+        } else {
+            $("#post_json_group").hide();
+            $("#post_form_group").show();
+        }
+    });
+
+    function testAPI() {
+        let apiurl = $("#api_path").text();
+        let input_list = $("#ajax_form :input");
+
+        let params = [];
+        for (let i = 0; i < input_list.length; i++) {
+            let input = input_list[i];
+            if (input.value !== '') {
+                params.push({name: input.name, value: input.value})
+            }
+        }
+
+        let query_str = jQuery.param(params);
+        let json_api_url = apiurl + "?" + query_str;
+
+        let post_type = $('input:radio[name="post_type"]:checked').val();
+
+        if (post_type === 'post_json') {
+            let jsondata = $("#json_data").val();
+            try {
+                let obj = jQuery.parseJSON(jsondata);
+            } catch (err) {
+                alert("貌似json格式不对，请检查");
+                return;
+            }
+
+            $.ajax({
+                type: 'POST',
+                url: json_api_url,
+                data: jsondata,
+                contentType: "application/json; charset=utf-8",
+                dataType: 'json',
+                error: function () {
+                    alert('error');
+                },
+                success: function (data) {
+                    let highLight = Prism.highlight(JSON.stringify(data, null, 2), Prism.languages.json, 'json');
+                    $("#response").html(highLight);
+                }
+            });
+        } else {
+            // post form
+            let form_data = new FormData();
+            let rows = $('#post_form_group tbody tr');
+            for (let i = 0; i < rows.length - 1; i++) {
+                let row = rows[i];
+                let para_name = row.children[1].children[0].value;
+                let para_value = row.children[2].children[0].value;
+                if (para_name !== '' && para_value !== '') {
+                    form_data.append(para_name, para_value);
+                }
+            }
+
+            $.ajax({
+                url: json_api_url,
+                type: 'POST',
+                cache: false,
+                contentType: false,
+                processData: false,
+                data: form_data,
+                error: function () {
+                    alert('error');
+                },
+                success: function (data) {
+                    let highLight = Prism.highlight(JSON.stringify(data, null, 2), Prism.languages.json, 'json');
+                    $("#response").html(highLight);
+                }
+            });
+        }
+    }
+
+    function ClearOutput() {
+        $("#response").html('# 点击 "测试" 按钮, 等待返回结果');
+    }
+
+</script>

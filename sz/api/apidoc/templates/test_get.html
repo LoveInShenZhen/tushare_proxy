@@ -34,12 +34,14 @@
         <h4 id='api_path'>{{ api.path }}</h4>
         <pre class="text-info">{{ api.doc }}</pre>
     </div>
+    <hr>
     <div class="control-group m-3">
+        <h4>Query String 参数:</h4>
         <form id="ajax_form">
             {% for arg in api.args %}
                 <div class="form-group">
-                    <label for="{{ arg.name }}" class="font-weight-bold">{{ arg.name }}
-                        <span class="small">类型: {{ arg.type_desc }}
+                    <label for="{{ arg.name }}" class="font-italic font-weight-bold">{{ arg.name }}
+                        <span class="small font-italic">类型: {{ arg.type_desc }}
                             {% if arg.has_default %}
                                 默认值: {{ arg.default }}
                             {% endif %}
@@ -49,9 +51,12 @@
                 </div>
             {% endfor %}
         </form>
+    </div>
+    <div class="m-3">
         <button class="btn btn-primary" onclick="testAPI()">测试</button>
         <button class="btn btn-primary" onclick="ClearOutput()">Clear Output</button>
     </div>
+    <hr>
     <div class="control-group m-3">
         <h5>返回结果：</h5>
         <div class="card bg-light text-dark">

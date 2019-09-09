@@ -105,6 +105,8 @@ def url_map() -> ReplyBase:
     #                    )
 
     reply.api_list = all_json_api()
+    reply.form_data = request.form
+    reply.header = {k: v for k, v in request.headers.items()}
 
     # for (k, v) in application.app.view_functions.items():
     #     print('%s : %s, name: %s' % (k, type(v), v.__name__))
@@ -118,6 +120,9 @@ def url_map() -> ReplyBase:
     # sz.log_c_debug('members:')
     # for m in inspect.getmembers(fun_module):
     #     sz.log_c_debug('%s', m)
+
+    sz.log_c_debug('form data: %s', str(request.form))
+
     return reply
 
 
