@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>API 接口文档</title>
+
+    <!-- 新 Bootstrap4 核心 CSS 文件 -->
+    <!-- <link rel="stylesheet" href="https://bootswatch.com/4/slate/bootstrap.min.css"> -->
+    <link rel="stylesheet" href="https://bootswatch.com/4/flatly/bootstrap.min.css">
+
+    <link rel="stylesheet" href="http://loveinshenzhen.github.io/prism/prism.css" data-noprefix/>
+
+    <!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
+    <script src="https://cdn.staticfile.org/jquery/3.2.1/jquery.min.js"></script>
+
+    <!-- bootstrap.bundle.min.js 用于弹窗、提示、下拉菜单，包含了 popper.min.js -->
+    <script src="https://cdn.staticfile.org/popper.js/1.15.0/umd/popper.min.js"></script>
+
+    <!-- 最新的 Bootstrap4 核心 JavaScript 文件 -->
+    <script src="https://cdn.staticfile.org/twitter-bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+    <style>
+
+    </style>
+
+</head>
+
+<body>
+<div class="container text-monospace">
+    <div class="m-3">
+        <h4 id='api_path'>{{ api.path }}</h4>
+        <pre class="text-info">{{ api.doc }}</pre>
+    </div>
+    <div class="control-group m-3">
+        <form id="ajax_form">
+            {% for arg in api.args %}
+                <div class="form-group">
+                    <label for="{{ arg.name }}" class="font-weight-bold">{{ arg.name }}
+                        <span class="small">类型: {{ arg.type_desc }}
+                            {% if arg.has_default %}
+                                默认值: {{ arg.default }}
+                            {% endif %}
+                        </span>
+                    </label>
+                    <input type="text" class="form-control" id="{{ arg.name }}" name="{{ arg.name }}" placeholder="Enter {{ arg.name }}">
+                </div>
+            {% endfor %}
+        </form>
+        <button class="btn btn-primary" onclick="testAPI()">测试</button>
+        <button class="btn btn-primary" onclick="ClearOutput()">Clear Output</button>
+    </div>
+    <div class="control-group m-3">
+        <h5>返回结果：</h5>
+        <div class="card bg-light text-dark">
+            <pre id="response" class="language-json">
+# 点击 "测试" 按钮, 等待返回结果
+            </pre>
+        </div>
+    </div>
+</div>
+
+</body>
+
+</html>
+
+<script src="http://loveinshenzhen.github.io/prism/prism.js"></script>
+<script type="text/javascript">
+
+    function testAPI() {
+        let apiurl = $("#api_path").text();
+        let input_list = $("#ajax_form :input");
+        console.log(input_list.length);
+        var params = [];
+        for (let i=0; i<input_list.length; i++) {
+            let input = input_list[i];
+            if (input.value !== '') {
+                params.push({name: input.name, value: input.value})
+            }
+        }
+
+        var query_str = jQuery.param(params);
+        var json_api_url = apiurl + "?" + query_str;
+
+        $.ajax({
+            url: json_api_url,
+            type: 'get',
+            dataType: 'json',
+            error: function () {
+                alert('error');
+            },
+            success: function (data) {
+                var highLight = Prism.highlight(JSON.stringify(data, null, 2), Prism.languages.json, 'json');
+                $("#response").html(highLight);
+            }
+        });
+    }
+
+    function ClearOutput() {
+        $("#response").html('# 点击 "测试" 按钮, 等待返回结果');
+    }
+
+</script>

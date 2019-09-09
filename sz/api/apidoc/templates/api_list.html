@@ -48,10 +48,10 @@
 
                     <td>
                         {% if api.support_get %}
-                        <a href="#" class="btn btn-outline-success btn-sm" role="button">GET</a>
+                        <a href="/doc/test_get?api_path={{ api.path }}" class="btn btn-outline-success btn-sm" role="button">GET</a>
                         {% endif %}
                         {% if api.support_post  %}
-                        <a href="#" class="btn btn-outline-success btn-sm" role="button">POST</a>
+                        <a href="/doc/test_post?api_path={{ api.path }}" class="btn btn-outline-success btn-sm" role="button">POST</a>
                         {% endif %}
                     </td>
                 </tr>
@@ -61,30 +61,6 @@
                         </tr>
                     {% endif %}
                 {% endfor %}
-                <tr>
-                    <td>/tmp/api_list</td>
-                    <td>Json Api 列表</td>
-                    <td>
-                        <a href="#" class="btn btn-outline-success btn-sm" role="button">GET</a>
-                        <a href="#" class="btn btn-outline-success btn-sm" role="button">POST</a>
-                    </td>
-                </tr>
-                <tr>
-                    <td>/tmp/api_list</td>
-                    <td>Json Api 列表</td>
-                    <td>
-
-                        <a href="#" class="btn btn-outline-success btn-sm" role="button">POST</a>
-                    </td>
-                </tr>
-                <tr>
-                    <td>/tmp/api_list</td>
-                    <td>Json Api 列表</td>
-                    <td>
-                        <a href="#" class="btn btn-outline-success btn-sm" role="button">GET</a>
-
-                    </td>
-                </tr>
             </tbody>
         </table>
     </div>

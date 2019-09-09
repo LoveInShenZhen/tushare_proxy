@@ -37,7 +37,7 @@ def json_api(func):
                 return reply
             elif isinstance(reply, str):
                 return Response(reply, content_type = 'text/plain; charset=utf-8')
-            
+
         except ApiError as e:
             reply = ReplyBase()
             reply.ret = e.err_code
@@ -52,25 +52,32 @@ def json_api(func):
 
 
 def load_arg_from_request(arg_name: str, arg_index: int, arg_map: dict, arg_spec: inspect.FullArgSpec):
-    arg_v: str = request.values.get(arg_name, None)
-    if arg_v is None and not_default_arg(arg_index, arg_spec):
-        raise ApiError(err_msg = 'missing required parameter: %s' % arg_name)
-    elif arg_v is not None:
-        arg_type = type_of_arg(arg_name, arg_spec)
-        if arg_type == str:
-            arg_map[arg_name] = arg_v
-        elif arg_type == int:
-            arg_map[arg_name] = int(arg_v)
-        elif arg_type == float:
-            arg_map[arg_name] = float(arg_v)
-        elif arg_type == bool:
-            arg_map[arg_name] = arg_v.upper() == 'TRUE'
-        elif arg_type == datetime:
-            arg_map[arg_name] = datetime.strptime(arg_v, '%Y-%m-%d %H:%M:%S')
-        elif arg_type == Decimal:
-            arg_map[arg_name] = Decimal(arg_v)
-        else:
-            raise ApiError('parameter type must be one of: str, int, float, bool, datetime, Decimal.')
+    try:
+        arg_v: str = request.values.get(arg_name, None)
+        if arg_v is None and not_default_arg(arg_index, arg_spec):
+            raise ApiError(err_msg = 'missing required parameter: %s' % arg_name)
+        elif arg_v is not None:
+            arg_type = type_of_arg(arg_name, arg_spec)
+            if arg_type == str:
+                arg_map[arg_name] = arg_v
+            elif arg_type == int:
+                arg_map[arg_name] = int(arg_v)
+            elif arg_type == float:
+                arg_map[arg_name] = float(arg_v)
+            elif arg_type == bool:
+                arg_map[arg_name] = arg_v.upper() == 'TRUE'
+            elif arg_type == datetime:
+                arg_map[arg_name] = datetime.strptime(arg_v, '%Y-%m-%d %H:%M:%S')
+            elif arg_type == Decimal:
+                arg_map[arg_name] = Decimal(arg_v)
+            else:
+                raise ApiError('parameter type must be one of: str, int, float, bool, datetime, Decimal.')
+    except ApiError as ex:
+        raise ex
+    except Exception as ex:
+        raise ApiError(str(ex))
+
+
 
 
 def not_default_arg(arg_index: int, arg_spec: inspect.FullArgSpec) -> bool:
@@ -109,13 +116,12 @@ class JsonApiFunc:
     comments: str = ''
     doc: str = '开发人员很懒,没有留下文档说明,鄙视他吧👎'
     has_doc: bool = False
-    brief: str = ''     # first line of doc
+    brief: str = ''  # first line of doc
     support_get: bool = False
     support_post: bool = False
     args: List[JsonApiArg] = None
 
     def load(self, rule: Rule):
-        sz.log_c_debug('--> %s', rule)
         self.path = rule.rule
         func = application.app.view_functions[rule.endpoint]
         self.func_module_name = func.__module__

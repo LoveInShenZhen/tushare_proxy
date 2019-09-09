@@ -1,4 +1,3 @@
-
 import inspect
 import os
 from datetime import datetime
@@ -151,7 +150,6 @@ def api_doc(api_path: str = '/api/tmp/api_doc', tag: str = 'doc', age: int = 16)
     reply.tag = tag
     reply.app_debug = application.app.debug
     reply.age = age
-    sz.log_c_debug('instance method: %s' % ReplyBase.json_str.__qualname__)
     if tag == 'error':
         raise ApiError('模拟异常发生')
     return reply
@@ -159,10 +157,12 @@ def api_doc(api_path: str = '/api/tmp/api_doc', tag: str = 'doc', age: int = 16)
 
 @tmptest.route('/say_hello')
 @json_api
-def say_hello(user: str) -> str:
+def say_hello(user: str) -> ReplyBase:
     """
     对访问用户打招呼,说 hello, 告诉今天日期
     :param user: 用户名称
     :return: 问候语
     """
-    return 'Hello %s, today is %s' % (user, datetime.now().strftime('%Y-%m-%d %A'))
+    reply = ReplyBase()
+    reply.txt = 'Hello %s, today is %s' % (user, datetime.now().strftime('%Y-%m-%d %A'))
+    return reply
