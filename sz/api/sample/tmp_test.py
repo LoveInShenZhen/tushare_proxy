@@ -59,11 +59,14 @@ def config_path() -> ReplyBase:
 
 @tmptest.route('/read_config')
 @json_api
-def read_config() -> ReplyBase:
-    cfg_key = request.args['config']
+def read_config(config_path: str) -> ReplyBase:
+    """
+    读取配置文件中, 指定配置路径(config_path)的配置
+    :param config_path: 配置路径
+    """
     reply = ReplyBase()
     reply.config_path = config
-    reply.config_value = config().get_string(cfg_key, "undefined")
+    reply.config_value = config().get_string(config_path, "undefined")
     return reply
 
 
@@ -108,10 +111,6 @@ def url_map() -> ReplyBase:
     reply.form_data = request.form
     reply.header = {k: v for k, v in request.headers.items()}
 
-    p = [api for api in reply.api_list if api.func_full_name == 'sz.api.apidoc.api_doc.api_def_list']
-
-    sz.log_c_debug('get test page: %s', p[0].path)
-
     # for (k, v) in application.app.view_functions.items():
     #     print('%s : %s, name: %s' % (k, type(v), v.__name__))
 
@@ -124,8 +123,6 @@ def url_map() -> ReplyBase:
     # sz.log_c_debug('members:')
     # for m in inspect.getmembers(fun_module):
     #     sz.log_c_debug('%s', m)
-
-    sz.log_c_debug('form data: %s', str(request.form))
 
     return reply
 

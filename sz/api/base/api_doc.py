@@ -8,7 +8,6 @@ from typing import List
 from flask import request, Response
 from werkzeug.routing import Rule
 
-import sz
 from sz import application
 from sz.api.base.errors import ApiError
 from sz.api.base.reply_base import json_response, ReplyBase
@@ -78,11 +77,16 @@ def load_arg_from_request(arg_name: str, arg_index: int, arg_map: dict, arg_spec
         raise ApiError(str(ex))
 
 
-
-
 def not_default_arg(arg_index: int, arg_spec: inspect.FullArgSpec) -> bool:
-    offset = len(arg_spec.args) - len(arg_spec.defaults)
+    offset = length(arg_spec.args) - length(arg_spec.defaults)
     return arg_index - offset < 0
+
+
+def length(length_able) -> int:
+    if length_able is None:
+        return 0
+    else:
+        return len(length_able)
 
 
 def type_of_arg(arg_name: str, arg_spec: inspect.FullArgSpec) -> type:
