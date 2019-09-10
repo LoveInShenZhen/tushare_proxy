@@ -7,7 +7,7 @@ from flask import Blueprint, Request
 
 import sz
 from sz import application
-from sz.api.base.api_doc import json_api, all_json_api
+from sz.api.base.api_doc import json_api, all_json_api, JsonApiFunc
 from sz.api.base.errors import ApiError
 from sz.api.base.reply_base import ReplyBase
 from sz.config import config
@@ -107,6 +107,10 @@ def url_map() -> ReplyBase:
     reply.api_list = all_json_api()
     reply.form_data = request.form
     reply.header = {k: v for k, v in request.headers.items()}
+
+    p = [api for api in reply.api_list if api.func_full_name == 'sz.api.apidoc.api_doc.api_def_list']
+
+    sz.log_c_debug('get test page: %s', p[0].path)
 
     # for (k, v) in application.app.view_functions.items():
     #     print('%s : %s, name: %s' % (k, type(v), v.__name__))

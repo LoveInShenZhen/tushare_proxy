@@ -27,44 +27,47 @@
 </head>
 
 <body>
-    <div class="container">
-        <table class="table table-hover" style="word-break:normal; word-wrap:break-word;">
-            <thead>
-                <tr>
-                    <th class="text-info">Url Path</th>
-                    <th class="text-info">Description</th>
-                    <th class="text-info">Test</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for api in api_list %}
-                <tr>
-                    <td>{{api.path}}</td>
-                    {% if api.has_doc %}
-                        <td><a href="#" data-toggle="collapse" data-target="#_doc_{{ loop.index }}">{{api.brief}}</a></td>
-                    {% else %}
-                        <td><span class="text-warning">{{api.brief}}</span></td>
-                    {% endif %}
+<div class="container">
+    <table class="table table-hover" style="word-break:normal; word-wrap:break-word;">
+        <thead>
+        <tr>
+            <th class="text-info">Url Path</th>
+            <th class="text-info">Description</th>
+            <th class="text-info">Test</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for api in api_list %}
+            <tr>
+                <td>{{ api.path }}</td>
+                {% if api.has_doc %}
+                    <td><a href="#" data-toggle="collapse" data-target="#_doc_{{ loop.index }}">{{ api.brief }}</a></td>
+                {% else %}
+                    <td><span class="text-warning">{{ api.brief }}</span></td>
+                {% endif %}
 
-                    <td>
-                        {% if api.support_get %}
-                        <a href="/doc/test_get?api_path={{ api.path }}" class="btn btn-outline-success btn-sm" role="button">GET</a>
-                        {% endif %}
-                        {% if api.support_post  %}
-                        <a href="/doc/test_post?api_path={{ api.path }}" class="btn btn-outline-success btn-sm" role="button">POST</a>
-                        {% endif %}
+                <td>
+                    {% if api.support_get %}
+                        <a href="{{ test_get_path }}?api_path={{ api.path }}" class="btn btn-outline-success btn-sm"
+                           role="button">GET</a>
+                    {% endif %}
+                    {% if api.support_post %}
+                        <a href="{{ test_post_path }}?api_path={{ api.path }}" class="btn btn-outline-success btn-sm"
+                           role="button">POST</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% if api.has_doc %}
+                <tr id="_doc_{{ loop.index }}" class="collapse">
+                    <td colspan=3>
+                        <pre class="text-info">{{ api.doc }}</pre>
                     </td>
                 </tr>
-                    {% if api.has_doc %}
-                        <tr id="_doc_{{ loop.index }}" class="collapse">
-                            <td colspan=3><pre class="text-info">{{ api.doc }}</pre></td>
-                        </tr>
-                    {% endif %}
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-
+            {% endif %}
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
 
 
 </body>
