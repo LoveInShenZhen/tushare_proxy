@@ -7,7 +7,7 @@ from flask import Blueprint, Request
 
 import sz
 from sz import application
-from sz.api.base.api_doc import json_api, all_json_api, JsonApiFunc
+from sz.api.base.api_doc import web_api, all_web_api, WebApiFunc
 from sz.api.base.errors import ApiError
 from sz.api.base.reply_base import ReplyBase
 from sz.config import config
@@ -17,7 +17,7 @@ request: Request = flask.request
 
 
 @tmptest.route('/test')
-@json_api
+@web_api
 def test() -> ReplyBase:
     reply = ReplyBase()
     reply.greetings = '老板好! 恭喜老板发财! 夜夜嫩模! 一夜七次! 一次一小时!'
@@ -26,7 +26,7 @@ def test() -> ReplyBase:
 
 
 @tmptest.route('/reply_test')
-@json_api
+@web_api
 def reply_test() -> ReplyBase:
     reply = ReplyBase()
     reply.greetings = '你好! 恭喜老板发财! 夜夜嫩模!'
@@ -34,7 +34,7 @@ def reply_test() -> ReplyBase:
 
 
 @tmptest.route('/current_path')
-@json_api
+@web_api
 def current_path() -> ReplyBase:
     reply = ReplyBase()
     reply.current_path = os.path.abspath('.')
@@ -42,7 +42,7 @@ def current_path() -> ReplyBase:
 
 
 @tmptest.route('/app_home')
-@json_api
+@web_api
 def app_home() -> ReplyBase:
     reply = ReplyBase()
     reply.app_home = application.APP_HOME
@@ -50,7 +50,7 @@ def app_home() -> ReplyBase:
 
 
 @tmptest.route('/config_path')
-@json_api
+@web_api
 def config_path() -> ReplyBase:
     reply = ReplyBase()
     reply.config_path = os.path.join(application.APP_HOME, 'conf', 'application.conf')
@@ -58,7 +58,7 @@ def config_path() -> ReplyBase:
 
 
 @tmptest.route('/read_config')
-@json_api
+@web_api
 def read_config(config_path: str) -> ReplyBase:
     """
     读取配置文件中, 指定配置路径(config_path)的配置
@@ -71,7 +71,7 @@ def read_config(config_path: str) -> ReplyBase:
 
 
 @tmptest.route('/url_map', methods = ['GET', 'POST'])
-@json_api
+@web_api
 def url_map() -> ReplyBase:
     """
     列出所有的 json api 信息
@@ -107,7 +107,7 @@ def url_map() -> ReplyBase:
     #                    str(arg_spec)
     #                    )
 
-    reply.api_list = all_json_api()
+    reply.api_list = all_web_api()
     reply.form_data = request.form
     reply.header = {k: v for k, v in request.headers.items()}
 
@@ -142,7 +142,7 @@ def comments_by_endpoint(endpoint: str) -> str:
 
 
 @tmptest.route('/api_doc')
-@json_api
+@web_api
 def api_doc(api_path: str = '/api/tmp/api_doc', tag: str = 'doc', age: int = 16) -> ReplyBase:
     """
     api_doc 接口文档
@@ -162,7 +162,7 @@ def api_doc(api_path: str = '/api/tmp/api_doc', tag: str = 'doc', age: int = 16)
 
 
 @tmptest.route('/say_hello')
-@json_api
+@web_api
 def say_hello(user: str) -> ReplyBase:
     """
     对访问用户打招呼,说 hello, 告诉今天日期

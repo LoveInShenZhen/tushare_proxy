@@ -47,7 +47,8 @@
                             {% endif %}
                         </span>
                     </label>
-                    <input type="text" class="form-control" id="{{ arg.name }}" name="{{ arg.name }}" placeholder="Enter {{ arg.name }}">
+                    <input type="text" class="form-control" id="{{ arg.name }}" name="{{ arg.name }}"
+                           placeholder="Enter {{ arg.name }}">
                 </div>
             {% endfor %}
         </form>
@@ -60,7 +61,7 @@
     <div class="control-group m-3">
         <h5>返回结果：</h5>
         <div class="card bg-light text-dark">
-            <pre id="response" class="language-json">
+            <pre id="response">
 # 点击 "测试" 按钮, 等待返回结果
             </pre>
         </div>
@@ -74,31 +75,42 @@
 <script src="http://loveinshenzhen.github.io/prism/prism.js"></script>
 <script type="text/javascript">
 
+    let return_json = {{ api.return_json|lower() }};
+
+    if (return_json) {
+        $('#response').addClass('language-json');
+    } else {
+        $('#response').removeClass('language-json');
+    }
+
     function testAPI() {
         let apiurl = $("#api_path").text();
         let input_list = $("#ajax_form :input");
-        console.log(input_list.length);
-        var params = [];
-        for (let i=0; i<input_list.length; i++) {
+        let params = [];
+        for (let i = 0; i < input_list.length; i++) {
             let input = input_list[i];
             if (input.value !== '') {
                 params.push({name: input.name, value: input.value})
             }
         }
 
-        var query_str = jQuery.param(params);
-        var json_api_url = apiurl + "?" + query_str;
+        let query_str = jQuery.param(params);
+        let json_api_url = apiurl + "?" + query_str;
 
         $.ajax({
             url: json_api_url,
             type: 'get',
-            dataType: 'json',
-            error: function () {
-                alert('error');
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                alert('error: ' + textStatus);
+                console.log(errorThrown);
             },
             success: function (data) {
-                var highLight = Prism.highlight(JSON.stringify(data, null, 2), Prism.languages.json, 'json');
-                $("#response").html(highLight);
+                if (return_json) {
+                    let highLight = Prism.highlight(JSON.stringify(data, null, 2), Prism.languages.json, 'json');
+                    $("#response").html(highLight);
+                } else {
+                    $("#response").text(data);
+                }
             }
         });
     }

@@ -112,7 +112,7 @@
     <div class="control-group mt-3 mb-3">
         <h5>返回结果：</h5>
         <div class="card bg-light text-dark">
-            <pre id="response" class="language-json">
+            <pre id="response">
 # 点击 "测试" 按钮, 等待返回结果
             </pre>
         </div>
@@ -125,6 +125,14 @@
 
 <script src="http://loveinshenzhen.github.io/prism/prism.js"></script>
 <script type="text/javascript">
+
+    let return_json = {{ api.return_json|lower() }};
+
+    if (return_json) {
+        $('#response').addClass('language-json');
+    } else {
+        $('#response').removeClass('language-json');
+    }
 
     var counter = 0;
 
@@ -191,13 +199,16 @@
                 url: json_api_url,
                 data: jsondata,
                 contentType: "application/json; charset=utf-8",
-                dataType: 'json',
                 error: function () {
                     alert('error');
                 },
                 success: function (data) {
-                    let highLight = Prism.highlight(JSON.stringify(data, null, 2), Prism.languages.json, 'json');
-                    $("#response").html(highLight);
+                    if (return_json) {
+                        let highLight = Prism.highlight(JSON.stringify(data, null, 2), Prism.languages.json, 'json');
+                        $("#response").html(highLight);
+                    } else {
+                        $("#response").text(data);
+                    }
                 }
             });
         } else {
@@ -224,8 +235,12 @@
                     alert('error');
                 },
                 success: function (data) {
-                    let highLight = Prism.highlight(JSON.stringify(data, null, 2), Prism.languages.json, 'json');
-                    $("#response").html(highLight);
+                    if (return_json) {
+                        let highLight = Prism.highlight(JSON.stringify(data, null, 2), Prism.languages.json, 'json');
+                        $("#response").html(highLight);
+                    } else {
+                        $("#response").text(data);
+                    }
                 }
             });
         }

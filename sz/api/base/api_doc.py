@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from decimal import Decimal
 from functools import update_wrapper
-from typing import List
+from typing import List, Callable
 
 from flask import request, Response
 from werkzeug.routing import Rule
@@ -13,7 +13,7 @@ from sz.api.base.errors import ApiError
 from sz.api.base.reply_base import json_response, ReplyBase
 
 
-def json_api(func):
+def web_api(func):
     """
     json_api 装饰器, 它应该处于 flask route 装饰器的下面, 并且应该是控制器方法上最近的一个包装器
     :param func: 被装饰器所包装的函数方法
@@ -33,9 +33,12 @@ def json_api(func):
             if isinstance(reply, ReplyBase):
                 return json_response(reply)
             elif isinstance(reply, Response):
+                reply.headers['Access-Control-Allow-Origin'] = '*'
                 return reply
             elif isinstance(reply, str):
-                return Response(reply, content_type = 'text/plain; charset=utf-8')
+                response = Response(reply, content_type = 'text/plain; charset=utf-8')
+                response.headers['Access-Control-Allow-Origin'] = '*'
+                return response
 
         except ApiError as e:
             reply = ReplyBase()
@@ -98,7 +101,7 @@ def full_name_of_func(func) -> str:
 
 
 @dataclass
-class JsonApiArg:
+class WebApiArg:
     # 参数名称
     name: str = ''
     # 参数位置索引
@@ -112,7 +115,7 @@ class JsonApiArg:
 
 
 @dataclass
-class JsonApiFunc:
+class WebApiFunc:
     path: str = ''
     func_module_name: str = None
     func_qualified_name: str = None
@@ -123,7 +126,8 @@ class JsonApiFunc:
     brief: str = ''  # first line of doc
     support_get: bool = False
     support_post: bool = False
-    args: List[JsonApiArg] = None
+    args: List[WebApiArg] = None
+    return_json: bool = True
 
     def load(self, rule: Rule):
         self.path = rule.rule
@@ -132,6 +136,7 @@ class JsonApiFunc:
         self.func_qualified_name = func.__qualname__
         self.func_full_name = full_name_of_func(func)
         self.comments = inspect.getcomments(func)
+        self.return_json = is_json_api_func(func)
 
         fun_doc = inspect.getdoc(func)
         if fun_doc:
@@ -148,12 +153,12 @@ class JsonApiFunc:
             arg_spec = inspect.getfullargspec(func.__original__fun__)
         else:
             arg_spec = inspect.getfullargspec(func)
-        offset = JsonApiFunc.length(arg_spec.args) - JsonApiFunc.length(arg_spec.defaults)
+        offset = WebApiFunc.length(arg_spec.args) - WebApiFunc.length(arg_spec.defaults)
         for arg_index, arg_name in enumerate(arg_spec.args):
             if arg_name == 'self':
                 continue
 
-            arg = JsonApiArg()
+            arg = WebApiArg()
             arg.name = arg_name
             arg.index = arg_index
             arg.has_default = arg_index - offset >= 0
@@ -181,11 +186,26 @@ class JsonApiFunc:
             return len(arg_list)
 
 
-def is_json_api_func(rule: Rule) -> bool:
+def is_json_api_func(func: Callable) -> bool:
+    """
+    判断是否是标注为 api 接口的 rule, 并且返回的是 json (ReplyBase)
+    """
+
+    if hasattr(func, '__original__fun__'):
+        return_cls = inspect.getfullargspec(func.__original__fun__).annotations.get('return', None)
+        if return_cls is None:
+            return False
+        else:
+            return issubclass(return_cls, ReplyBase)
+    else:
+        return False
+
+
+def is_web_api_func(rule: Rule) -> bool:
     func = application.app.view_functions[rule.endpoint]
     return hasattr(func, '__original__fun__')
 
 
-def all_json_api() -> List[JsonApiFunc]:
-    rules = filter(is_json_api_func, application.app.url_map.iter_rules())
-    return [JsonApiFunc().load(rule) for rule in rules]
+def all_web_api() -> List[WebApiFunc]:
+    rules = filter(is_web_api_func, application.app.url_map.iter_rules())
+    return [WebApiFunc().load(rule) for rule in rules]

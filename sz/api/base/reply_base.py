@@ -13,5 +13,7 @@ class ReplyBase(object):
 
 
 def json_response(reply: ReplyBase) -> Response:
-    return Response(jsonpickle.encode(reply, unpicklable = False, use_decimal = True),
-                    content_type = 'application/json; charset=utf-8')
+    response = Response(jsonpickle.encode(reply, unpicklable = False, use_decimal = True),
+                        content_type = 'application/json; charset=utf-8')
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    return response
