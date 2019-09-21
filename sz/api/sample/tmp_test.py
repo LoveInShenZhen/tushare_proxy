@@ -172,3 +172,13 @@ def say_hello(user: str) -> ReplyBase:
     reply = ReplyBase()
     reply.txt = 'Hello %s, today is %s' % (user, datetime.now().strftime('%Y-%m-%d %A'))
     return reply
+
+
+@tmptest.route('/test_ex')
+@web_api
+def test_ex() -> str:
+    """
+    模拟异常产生
+    :return:
+    """
+    raise Exception("模拟代码中异常产生")

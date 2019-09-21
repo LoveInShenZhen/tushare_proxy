@@ -1,3 +1,5 @@
+from typing import Union
+
 from flask import Blueprint, request
 from flask import render_template
 
@@ -55,7 +57,7 @@ def path_by_func_full_name(fullname: str) -> str:
     return path_of_endpoint(endpoint)
 
 
-def endpoint_of_func(fullname: str) -> str:
+def endpoint_of_func(fullname: str) -> Union[str, None]:
     for endpoint, func in sz.application.app.view_functions.items():
         func_fullname = '%s.%s' % (func.__module__, func.__qualname__)
         if func_fullname == fullname:

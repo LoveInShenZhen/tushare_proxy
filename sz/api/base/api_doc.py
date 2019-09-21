@@ -1,4 +1,5 @@
 import inspect
+import traceback
 from dataclasses import dataclass
 from datetime import datetime
 from decimal import Decimal
@@ -9,8 +10,10 @@ from flask import request, Response
 from werkzeug.routing import Rule
 
 from sz import application
+from sz.application import logger
 from sz.api.base.errors import ApiError
 from sz.api.base.reply_base import json_response, ReplyBase
+import colorama
 
 
 def web_api(func):
@@ -21,6 +24,7 @@ def web_api(func):
     """
 
     def wrapper(*args, **kwds):
+        return_json = False
         try:
             # func_map = JsonApiViewFunctionsSpec()
             arg_spec = inspect.getfullargspec(func)
@@ -31,6 +35,7 @@ def web_api(func):
             reply = func(*args, **kwds)
 
             if isinstance(reply, ReplyBase):
+                return_json = True
                 return json_response(reply)
             elif isinstance(reply, Response):
                 reply.headers['Access-Control-Allow-Origin'] = '*'
@@ -44,9 +49,20 @@ def web_api(func):
             reply = ReplyBase()
             reply.ret = e.err_code
             reply.err_msg = e.err_msg
+            reply.traceback = traceback.format_exc()
             return json_response(reply)
         except BaseException as e:
-            raise e
+            if return_json:
+                reply = ReplyBase()
+                reply.ret = -1
+                reply.err_msg = str(e)
+                reply.traceback = traceback.format_exc()
+                return json_response(reply)
+            else:
+                # logger.debug(colorama.Fore.RED + '=================================')
+
+                logger().error(colorama.Fore.RED + traceback.format_exc())
+                raise e
 
     wrapper.__original__fun__ = func
 

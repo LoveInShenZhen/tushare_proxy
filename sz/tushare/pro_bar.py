@@ -16,7 +16,7 @@ def bar_data(ts_code: str = '',
              adj: str = None,
              ma: List[int] = [],
              factors: List[str] = None,
-             retry_count: int = 3) -> pd.DataFrame:
+             retry_count: int = 1) -> pd.DataFrame:
     """
     通用行情接口, BAR 数据
     Parameters:
@@ -120,7 +120,7 @@ def cache_dir() -> str:
     返回缓存文件存放的目录
     :return:
     """
-    return os.path.join(config().get_string('tushare.data_dir'), 'pro_bar')
+    return os.path.join(config().get_string('tushare.data_dir'), 'pro_bar_cache')
 
 
 def __empty_as_none__(s: str) -> str:
