@@ -176,9 +176,9 @@ def say_hello(user: str) -> ReplyBase:
 
 @tmptest.route('/test_ex')
 @web_api
-def test_ex() -> str:
+def test_ex(msg: str = 'hello') -> ReplyBase:
     """
     模拟异常产生
     :return:
     """
-    raise Exception("模拟代码中异常产生")
+    raise Exception("模拟代码中异常产生 %s" % msg)
